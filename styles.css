@@ -1,0 +1,185 @@
+/* ============================================================
+   암호화폐 불장 알림이 — 토스증권 다크 테마 (참고: Toss Securities DS)
+   · 딥블랙 서피스 + 반투명 1px 보더(그림자 대체) · 토스블루 #3182f6
+   · KR 금융 관례: 빨강=상승/과열, 파랑=하락/냉각 (우리 히트맵과 일치)
+   ============================================================ */
+:root{
+  /* 서피스 (최심부 → 패널 → 오버레이) */
+  --bg:#101013;            /* 페이지 바닥 */
+  --panel:#17171c;         /* 카드·패널 */
+  --panel-2:#1d1d23;       /* 한 단계 위 */
+  --overlay:#202025;       /* 시트·툴팁 */
+  --line:rgba(214,224,239,.09);     /* 반투명 보더(그림자 대신 깊이) */
+  --line-strong:rgba(214,224,239,.15);
+
+  /* 텍스트 */
+  --text:rgba(242,246,255,.92);
+  --text-2:rgb(195,195,198);
+  --muted:rgba(242,242,255,.47);
+
+  /* 브랜드 / 시맨틱 (KR: 빨강=상승 · 파랑=하락) */
+  --brand:#3182f6; --brand-text:#4391ff;
+  --up:#dc2e47; --up-text:#f5445a;
+  --down:#3182f6; --down-text:#4391ff;
+
+  /* 핀비즈식 다이버징 (토스 레드/블루) */
+  --heat:linear-gradient(90deg,#3182f6 0%,#4f74cc 28%,#6b7280 47%,#787c86 50%,#b85e68 56%,#dc2e47 78%,#a51c2e 100%);
+
+  --radius:8px; --radius-pill:999px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  min-height:100vh;
+  background:var(--bg);
+  color:var(--text-2);
+  font-family:'Pretendard Variable','Pretendard',-apple-system,system-ui,
+              'Apple SD Gothic Neo','Noto Sans KR',Roboto,'Malgun Gothic',sans-serif;
+  font-variant-numeric:tabular-nums;       /* 숫자 폭 고정(시세 정렬) */
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:-.1px;
+}
+
+/* 헤더 */
+.top{text-align:center;padding:40px 16px 4px}
+.top h1{margin:0;font-size:30px;font-weight:700;letter-spacing:-.6px;color:var(--text)}
+.beta{font-size:12px;font-weight:600;background:rgba(217,217,255,.11);color:var(--muted);
+  border:1px solid var(--line);padding:3px 10px;border-radius:var(--radius-pill);
+  vertical-align:middle;margin-left:10px}
+.sub{color:var(--muted);margin:14px 0 0;font-size:15px;font-weight:500}
+.sub b{color:var(--text-2)}
+
+/* 게이지 (직선) */
+.gauge-wrap{display:flex;justify-content:center;padding:20px 16px 6px}
+.gauge{width:100%;max-width:760px}
+.lg-head{display:flex;align-items:baseline;justify-content:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.lg-emoji{font-size:30px}
+.lg-score{font-size:54px;font-weight:800;letter-spacing:-2.5px;line-height:1;color:var(--text)}
+.lg-out{font-size:16px;color:var(--muted);font-weight:600}
+.lg-zone{font-size:17px;font-weight:700;margin-left:6px}
+html[lang="en"]{ --heat:linear-gradient(90deg,#dc2e47 0%,#c43a50 26%,#8a6470 46%,#787c86 50%,#5fa078 56%,#22c55e 78%,#16a34a 100%); }
+.lg-track{position:relative;height:18px;border-radius:var(--radius-pill);
+  background:var(--heat);border:1px solid var(--line)}
+.lg-marker{position:absolute;top:-6px;bottom:-6px;width:3px;background:#fff;border-radius:3px;transform:translateX(-50%)}
+.lg-knob{position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:16px;height:16px;border-radius:50%;
+  background:#fff;border:3px solid var(--bg)}
+.lg-ticks{display:flex;justify-content:space-between;margin-top:11px;color:var(--muted);font-size:11.5px;font-weight:600}
+
+/* 색 범례 */
+.scale{display:flex;align-items:center;justify-content:center;gap:11px;padding:18px 16px 4px}
+.scale-bar{width:min(340px,58vw);height:8px;border-radius:var(--radius-pill);background:var(--heat);border:1px solid var(--line)}
+.scale-lab{font-size:12px;font-weight:600;color:var(--muted)}
+
+.note{text-align:center;color:var(--muted);font-size:12px;padding:6px 16px 16px;line-height:1.6}
+.note b{color:var(--text-2)}
+
+/* 히트맵 */
+.heatmap-wrap{padding:0 16px 28px;display:flex;justify-content:center}
+.heatmap{position:relative;width:100%;max-width:1280px;height:680px;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.cat-box{position:absolute;border:1px solid var(--line);background:rgba(255,255,255,.012)}
+.cat-head{position:absolute;display:flex;align-items:center;gap:7px;padding:0 11px;box-sizing:border-box;
+  background:rgba(255,255,255,.035);border-bottom:1px solid var(--line);pointer-events:none;overflow:hidden}
+.cat-head::before{content:"";flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:var(--cc,#64748b)}
+.cat-head .ch-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:13px;font-weight:600;letter-spacing:.2px;color:var(--text)}
+
+/* 타일 (색 = 온도). 핀비즈식으로 각지게(반경 0) 유지 */
+.tile{position:absolute;overflow:hidden;cursor:default;color:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3px;
+  background-image:linear-gradient(165deg,rgba(255,255,255,.10),rgba(0,0,0,.16));
+  transition:outline-color .1s ease, filter .1s ease, transform .1s ease}
+.tile.pending{outline:1.5px dashed rgba(255,255,255,.5);outline-offset:-4px;opacity:.85}
+.tile:hover{filter:brightness(1.12);transform:scale(1.012);z-index:6;
+  outline:2px solid rgba(255,255,255,.92);outline-offset:-2px}
+.tile .t-name{font-weight:700;line-height:1.06;white-space:nowrap;max-width:100%;overflow:hidden;
+  text-overflow:ellipsis;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.tile .t-metric{font-weight:700;opacity:.95;line-height:1.12;margin-top:2px;max-width:100%;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  word-break:break-word;text-shadow:0 1px 2px rgba(0,0,0,.45);font-variant-numeric:tabular-nums}
+/* 전일(아침7시) 대비 등락 배지 — 중요도 7+ 타일. 색=점수 방향(초록 우호/빨강 약세), 화살표=지표 증감 */
+.tile .t-delta{margin-top:3px;font-size:11px;font-weight:800;letter-spacing:.02em;white-space:nowrap;
+  text-shadow:0 1px 3px rgba(0,0,0,.6);font-variant-numeric:tabular-nums}
+.tile .t-delta.g{color:#8ef5c8}
+.tile .t-delta.b{color:#ffc2c2}
+
+/* 툴팁 (오버레이 서피스 + 보더, 그림자 없음) */
+.tooltip{position:fixed;z-index:50;max-width:300px;background:var(--overlay);border:1px solid var(--line-strong);
+  border-radius:var(--radius);padding:12px 14px;
+  font-size:13px;line-height:1.5;pointer-events:none;opacity:0;transform:translateY(5px);transition:opacity .12s ease;max-height:85vh;overflow-y:auto}
+.tooltip.show{opacity:1;transform:none}
+/* 모바일: 화면 하단 고정 시트 — 절대 잘리지 않고, 긴 설명은 스크롤 */
+.tooltip.sheet{left:10px;right:10px;bottom:max(14px,env(safe-area-inset-bottom));top:auto;
+  max-width:none;width:auto;max-height:60vh;overflow-y:auto;pointer-events:auto;
+  box-shadow:0 -10px 34px rgba(0,0,0,.55)}
+.tooltip.pin{pointer-events:auto;max-height:75vh;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.tooltip h4{margin:0 0 8px;font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tooltip .chip{font-size:10px;padding:2px 8px;border-radius:var(--radius-pill);color:#fff;font-weight:600;opacity:.92}
+.tooltip .row{color:var(--muted);margin:3px 0;font-size:12px}
+.tooltip .cmt{margin:0 0 8px;padding-bottom:8px;border-bottom:1px solid var(--line);color:#fbbf24;font-weight:700;font-size:13px;line-height:1.45}
+.tooltip .cmt .cmt-at{color:var(--muted);font-weight:600;font-size:11px;white-space:nowrap}
+.tooltip .tt-delta{margin:0 0 8px;color:var(--muted);font-size:12px;font-weight:600}
+.tooltip .tt-delta .g{color:#34d399}
+.tooltip .tt-delta .b{color:#f87171}
+.tooltip .row b{color:var(--text);font-weight:600}
+.tooltip .tt-sec{margin-top:10px}
+.tooltip .tt-lab{font-size:11.5px;font-weight:800;margin-bottom:4px;letter-spacing:.03em}
+.tooltip .tt-lab.why{color:#7eb6ff}
+.tooltip .tt-lab.now{color:#34d399}
+.tooltip .tt-txt{color:var(--text-2);font-size:12.5px;line-height:1.55}
+
+/* 푸터 */
+.foot{text-align:center;color:var(--muted);font-size:12px;padding:10px 16px 36px;line-height:1.6}
+.foot code{background:var(--panel-2);padding:2px 7px;border-radius:6px;color:var(--text-2);border:1px solid var(--line)}
+.foot p{margin:4px 0}
+.foot .contact{margin-top:8px}
+.foot .contact a{color:var(--brand-text);text-decoration:none}
+.foot .contact a:hover{text-decoration:underline}
+.admin-visits{color:var(--muted);font-size:11px;opacity:.85}
+#datastat{font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:8px;
+  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;align-items:center}
+.ds-item{display:inline-flex;align-items:center}
+.ds-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+
+/* 현재 상태 한 줄 */
+.status{text-align:center;font-size:15px;padding:0 16px 8px;max-width:760px;margin:0 auto;color:var(--text-2)}
+.status b{font-weight:700}
+.st-msg{color:var(--muted);font-size:13.5px}
+
+/* 총점 추이 미니 차트 */
+.trend-wrap{display:flex;justify-content:center;padding:6px 16px 10px}
+.trend{width:100%;max-width:760px}
+.trend-empty{padding:18px 12px;text-align:center;font-size:12.5px;color:var(--muted);
+  border:1px dashed var(--line);border-radius:var(--radius)}
+.lang-toggle{position:fixed;top:12px;right:14px;z-index:60;padding:5px 11px;border-radius:999px;
+  border:1px solid var(--line-strong);background:var(--overlay);color:var(--text);
+  font-size:12px;font-weight:600;letter-spacing:.3px;cursor:pointer;
+  transition:background .12s ease, border-color .12s ease}
+.lang-toggle:hover{background:var(--panel-2);border-color:var(--brand-text)}
+.trend-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.trend-title{font-size:12px;color:var(--muted);font-weight:600}
+.trend-tag{font-style:normal;font-size:10px;background:rgba(217,217,255,.11);color:var(--muted);
+  padding:1px 7px;border-radius:var(--radius-pill);margin-left:6px;vertical-align:middle}
+.trend-now{font-size:16px;font-weight:800;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
+.trend-now small{font-size:11px;font-weight:700;opacity:.85;margin-left:2px}
+.trend-svg{width:100%;height:96px;display:block;border-bottom:1px solid var(--line)}
+.trend-x{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px}
+.trend-mid{color:var(--muted);opacity:.7}
+
+/* 카테고리별 점수 칩 */
+.catbreak-wrap{display:flex;justify-content:center;padding:6px 16px 16px}
+.catbreak{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:1100px}
+.cb-chip{display:flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--radius-pill);padding:6px 14px}
+.cb-dot{width:8px;height:8px;border-radius:50%;flex:none}
+.cb-name{font-size:12px;color:var(--text-2);font-weight:500}
+.cb-score{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+
+@media (max-width:640px){
+  .top{padding:28px 16px 4px}
+  .top h1{font-size:21px}
+  .lg-score{font-size:42px}
+  .lg-zone{font-size:15px}
+  .heatmap{height:76vh;height:76svh;min-height:520px}  /* svh: 모바일 주소창 토글에도 높이 고정(재배치 깜빡임 방지) */
+  .scale-bar{width:50vw}
+}
