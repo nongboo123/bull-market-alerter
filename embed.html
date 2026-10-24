@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불장 온도 · firecoin.me</title>
+<meta name="robots" content="noindex">
+<!-- 외부 사이트 임베드용 위젯: '점수 + 핀비즈 히트맵'만 가로형 직사각형. app.js 등 본 사이트 코드 그대로 재사용.
+     테마(색·폰트)는 URL 파라미터로 조절 — 아래 <script> 참고, 예: embed.html?theme=light&accent=f59e0b&font=serif -->
+<link rel="stylesheet" href="styles.css">
+<style>
+  html, body { margin:0; height:100%; background:var(--bg);
+    font-family:var(--font, 'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif); }
+  /* 가로형 위젯: 왼쪽 점수 / 오른쪽 히트맵 */
+  .embed { display:flex; gap:16px; align-items:stretch; height:100vh; box-sizing:border-box; padding:12px 14px; position:relative; }
+  .embed .e-left { flex:0 0 clamp(150px, 26%, 270px); min-width:0; display:flex; flex-direction:column;
+    justify-content:center; align-items:center; text-align:center; gap:6px; text-decoration:none; }
+  .embed .e-title { font-size:15px; font-weight:800; color:var(--accent, var(--text)); letter-spacing:-.01em; line-height:1.15; }
+  .embed .e-left:hover .e-title { opacity:.85; }
+  .embed .e-left .gauge { width:100%; }
+  .embed .e-left .lg-head { margin-bottom:5px; }
+  .embed .e-left .lg-zone { margin-bottom:10px; }
+  .embed .e-left .lg-ticks { font-size:10px; }
+  .embed .e-right { flex:1 1 auto; min-width:0; }
+  .embed .e-right #heatmap { height:100% !important; min-height:0 !important; max-width:none !important; border-radius:10px; overflow:hidden; }
+  .embed .e-more { position:absolute; right:14px; bottom:7px; font-size:10px; font-weight:600;
+    color:var(--muted); text-decoration:none; }
+  .embed .e-more:hover { color:var(--text-2); }
+  /* 아주 좁은 임베드면 위=점수 / 아래=히트맵으로 쌓기 */
+  @media (max-width:520px) {
+    .embed { flex-direction:column; height:auto; }
+    .embed .e-left { flex:none; }
+    .embed .e-right { height:62vw; min-height:230px; }
+  }
+</style>
+<script>
+  /* 임베드 테마 커스터마이즈 — iframe src 의 URL 파라미터로 색·폰트 변경.
+     예) embed.html?theme=light&bg=f8fafc&accent=f59e0b&font=serif
+     · theme=light|dark (기본 dark)
+     · 색: bg·text·muted·panel·line·accent  (값=#hex / hex / rgb(a)(...) / 색이름)  ※ # 은 인코딩(%23) 하거나 생략 가능
+     · font=system|pretendard|sans|serif|mono|rounded  또는 커스텀 폰트명
+     · 히트맵 타일·게이지의 온도색(파랑↔빨강)은 의미 색이라 바뀌지 않음(크롬만 변경). */
+  (function(){
+    try{
+      var q = new URLSearchParams(location.search);
+      var root = document.documentElement, S = function(k,v){ root.style.setProperty(k,v); };
+      var normColor = function(v){
+        if(/^[0-9a-fA-F]{3,8}$/.test(v)) return '#'+v;                 // 맨 hex(#없이)
+        if(/^#[0-9a-fA-F]{3,8}$/.test(v)) return v;                    // #hex
+        if(/^rgba?\([\d.,\s%]+\)$/.test(v)) return v;                  // rgb/rgba
+        if(/^[a-zA-Z]{3,20}$/.test(v)) return v;                       // 색이름(white 등)
+        return null;                                                   // 그 외 거부(CSS 주입 방지)
+      };
+      var FONTS = {
+        system:"-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif",
+        pretendard:"'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif",
+        sans:"'Helvetica Neue',Arial,'Apple SD Gothic Neo','Malgun Gothic',sans-serif",
+        serif:"Georgia,'Times New Roman','Nanum Myeongjo',serif",
+        mono:"'SF Mono',ui-monospace,'D2Coding',Menlo,Consolas,monospace",
+        rounded:"'Apple SD Gothic Neo','Segoe UI Rounded','Pretendard',system-ui,sans-serif"
+      };
+      // 1) 프리셋 테마
+      if ((q.get('theme')||'').toLowerCase() === 'light'){
+        S('--bg','#ffffff'); S('--panel','#f4f5f7'); S('--panel-2','#eceef1'); S('--overlay','#ffffff');
+        S('--line','rgba(20,22,30,.12)'); S('--line-strong','rgba(20,22,30,.20)');
+        S('--text','#191b22'); S('--text-2','#3a3d46'); S('--muted','rgba(20,22,30,.50)');
+      }
+      // 2) 개별 색 오버라이드(프리셋 위에 덮음)
+      var map = { bg:'--bg', text:'--text', muted:'--muted', panel:'--panel', line:'--line', accent:'--accent' };
+      Object.keys(map).forEach(function(k){ var v=q.get(k); if(v){ var c=normColor(v); if(c) S(map[k], c); } });
+      // 3) 폰트: 프리셋 키 또는 안전한 커스텀(문자/공백/쉼표/따옴표/하이픈만)
+      var f = q.get('font');
+      if (f){ var lf=f.toLowerCase(); if (FONTS[lf]) S('--font', FONTS[lf]); else if (/^[\w\s,'"\-]{1,120}$/.test(f)) S('--font', f); }
+    }catch(e){}
+  })();
+</script>
+</head>
+<body>
+  <div class="embed">
+    <a class="e-left" href="https://firecoin.me" target="_blank" rel="noopener">
+      <span class="e-title">🔥 지금 불장이야?</span>
+      <div id="gauge" class="gauge"></div>
+    </a>
+    <div class="e-right"><div id="heatmap" class="heatmap"></div></div>
+    <a class="e-more" href="https://firecoin.me" target="_blank" rel="noopener">firecoin.me ↗</a>
+  </div>
+
+  <!-- 히트맵 타일 호버 설명(툴팁) -->
+  <div id="tooltip" class="tooltip" aria-hidden="true"></div>
+
+  <!-- 본 사이트와 동일한 스크립트: 데이터·렌더·실시간 갱신 그대로 재사용 -->
+  <script src="data.js"></script>
+  <script src="history.js"></script>
+  <script src="i18n.js"></script>
+  <script src="commentary.js"></script>
+  <script src="commentary-daily.js"></script>
+  <script src="app.js"></script>
+  <script src="live.js"></script>
+</body>
+</html>
